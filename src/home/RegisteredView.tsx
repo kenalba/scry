@@ -28,6 +28,7 @@ import { useGroupCallRooms } from "./useGroupCallRooms";
 import { ScryShell } from "../scry/ScryShell";
 import styles from "./RegisteredView.module.css";
 import { FieldRow, ErrorMessage } from "../input/Input";
+import { SummoningStars } from "./SummoningStars";
 import { CircleNameField } from "./CircleNameField";
 import { CallList } from "./CallList";
 import { UserMenuContainer } from "../UserMenuContainer";
@@ -50,6 +51,7 @@ export const RegisteredView: FC<Props> = ({ client }) => {
     ? `${profileName}’s Circle`
     : "My Circle";
   const [loading, setLoading] = useState(false);
+  const [nameFocused, setNameFocused] = useState(false);
   const [error, setError] = useState<Error>();
   const [optInAnalytics] = useOptInAnalytics();
   const navigate = useNavigate();
@@ -121,14 +123,17 @@ export const RegisteredView: FC<Props> = ({ client }) => {
 
   return (
     <>
-      <ScryShell headerActions={<UserMenuContainer />}>
+      <ScryShell
+        headerActions={<UserMenuContainer />}
+        decoration={<SummoningStars focused={nameFocused} opening={loading} />}
+      >
         <h1>Gather Around The Orb</h1>
         <p>Open a circle and summon your friends.</p>
         <Form className={styles.form} onSubmit={onSubmit}>
           <FieldRow className={styles.fieldRow}>
             <CircleNameField
               placeholder={circlePlaceholder}
-              opening={loading}
+              onFocusChange={setNameFocused}
             />
 
             <button

@@ -30,7 +30,8 @@ export const ScryWordmark: FC<{
 export const ScryShell: FC<{
   children: ReactNode;
   headerActions?: ReactNode;
-}> = ({ children, headerActions }) => (
+  decoration?: ReactNode;
+}> = ({ children, headerActions, decoration }) => (
   <div className={styles.shell}>
     <Starfield />
     <header className={styles.header}>
@@ -40,11 +41,28 @@ export const ScryShell: FC<{
       )}
     </header>
     <main className={styles.main} data-scry-reveal>
+      {decoration}
       {children}
     </main>
     <footer className={styles.footer}>
       <span>
-        Powered by <a className={styles.attribution} href="https://github.com/element-hq/element-call/tree/main/docs" target="_blank" rel="noreferrer">the elements</a> · <a href="https://github.com/kenalba/scry/tree/signal24" target="_blank" rel="noreferrer">source</a>
+        Powered by{" "}
+        <a
+          className={styles.attribution}
+          href="https://github.com/element-hq/element-call/tree/main/docs"
+          target="_blank"
+          rel="noreferrer"
+        >
+          the elements
+        </a>{" "}
+        ·{" "}
+        <a
+          href="https://github.com/kenalba/scry/tree/signal25"
+          target="_blank"
+          rel="noreferrer"
+        >
+          source
+        </a>
         <StarfieldToggle separator />
       </span>
     </footer>

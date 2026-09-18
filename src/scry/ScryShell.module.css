@@ -51,6 +51,7 @@
   margin-right: 10px;
 }
 .main {
+  position: relative;
   box-sizing: border-box;
   width: min(100% - 48px, 560px);
   margin: 24px auto;
