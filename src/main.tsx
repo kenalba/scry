@@ -5,6 +5,8 @@ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
 Please see LICENSE in the repository root for full details.
 */
 
+import "./auth/scrySsoBootstrap";
+
 // We need to import this somewhere, once, so that the correct 'request'
 // function gets set. It needs to be not in the same file as we use
 // createClient, or the typescript transpiler gets confused about

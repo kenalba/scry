@@ -26,6 +26,8 @@ import {
 } from "livekit-client";
 import { useObservableEagerState } from "observable-hooks";
 
+import { Starfield, StarfieldToggle } from "../scry/Starfield";
+import { useUrlParams } from "../UrlParams";
 import inCallStyles from "./InCallView.module.css";
 import styles from "./LobbyView.module.css";
 import { Header, LeftNav, RightNav, RoomHeaderInfo } from "../Header";
@@ -77,6 +79,7 @@ export const LobbyView: FC<Props> = ({
   onShareClick,
   waitingForInvite,
 }) => {
+  const { isWidget } = useUrlParams();
   useEffect(() => {
     logger.info("[Lifecycle] LobbyView Component mounted");
     return (): void => {
@@ -214,6 +217,7 @@ export const LobbyView: FC<Props> = ({
   return (
     <>
       <div className={classNames(styles.room, inCallStyles.inRoom)}>
+        {!isWidget && <Starfield fast />}
         {!hideHeader && (
           <Header>
             <LeftNav>
@@ -253,8 +257,14 @@ export const LobbyView: FC<Props> = ({
           {!recentsButtonInFooter && recentsButton}
         </div>
         {footerVm !== null && (
-          <CallFooter vm={footerVm}>
-            {recentsButtonInFooter && recentsButton}
+          <CallFooter
+            vm={footerVm}
+            className={!isWidget ? styles.scryFooter : undefined}
+          >
+            <>
+              {!isWidget && <StarfieldToggle />}
+              {recentsButtonInFooter && recentsButton}
+            </>
           </CallFooter>
         )}
       </div>

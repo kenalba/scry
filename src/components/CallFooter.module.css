@@ -159,3 +159,15 @@ Once we exceed 500 we hide everything except the buttons.
     gap: var(--cpd-space-4x);
   }
 }
+
+.scryLogo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--wzrdz-fg);
+  font: 400 14px var(--wzrdz-font-ui);
+}
+.scryLogo img {
+  width: 26px;
+  height: 26px;
+}

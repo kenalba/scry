@@ -10,7 +10,7 @@ Please see LICENSE in the repository root for full details.
   justify-content: center;
   max-width: 409px;
   width: calc(100% - 48px);
-  margin-bottom: 72px;
+  margin-bottom: 0;
 }
 
 .fieldRow {
@@ -21,9 +21,6 @@ Please see LICENSE in the repository root for full details.
   margin-bottom: 0;
 }
 
-.button {
-  padding: 0 24px;
-}
 
 .recentCallsTitle {
   margin-bottom: 32px;
@@ -32,3 +29,32 @@ Please see LICENSE in the repository root for full details.
 .notice {
   color: var(--cpd-color-text-secondary);
 }
+
+@media (max-width: 600px) {
+  .fieldRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .fieldRow > * {
+    margin-right: 0;
+  }
+}
+
+.form .fieldRow button.button {
+  width: auto;
+  flex: none;
+}
+.form .nameField input::placeholder {
+  color: var(--wzrdz-muted);
+}
+.form .nameField input + label {
+  top: -13px;
+  font-size: var(--font-size-micro);
+  background: var(--wzrdz-bg);
+  padding: 0 2px;
+}
+
+/* Keep the associated label accessible while only displaying it during editing. */
+.form .nameField input + label { opacity:0; }
+.form .nameField input:focus + label { opacity:1; }

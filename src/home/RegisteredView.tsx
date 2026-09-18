@@ -14,9 +14,8 @@ import {
 } from "react";
 import { type MatrixClient } from "matrix-js-sdk";
 import { useTranslation } from "react-i18next";
-import { Heading, Text } from "@vector-im/compound-web";
+import { Text } from "@vector-im/compound-web";
 import { logger } from "matrix-js-sdk/lib/logger";
-import { Button } from "@vector-im/compound-web";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -26,8 +25,7 @@ import {
   sanitiseRoomNameInput,
 } from "../utils/matrix";
 import { useGroupCallRooms } from "./useGroupCallRooms";
-import { Header, HeaderLogo, LeftNav, RightNav } from "../Header";
-import commonStyles from "./common.module.css";
+import { ScryShell } from "../scry/ScryShell";
 import styles from "./RegisteredView.module.css";
 import { FieldRow, InputField, ErrorMessage } from "../input/Input";
 import { CallList } from "./CallList";
@@ -36,15 +34,20 @@ import { JoinExistingCallModal } from "./JoinExistingCallModal";
 import { Form } from "../form/Form";
 import { AnalyticsNotice } from "../analytics/AnalyticsNotice";
 import { E2eeType } from "../e2ee/e2eeType";
+import { useProfile } from "../profile/useProfile";
+import scryStyles from "../scry/ScryShell.module.css";
 import { useOptInAnalytics } from "../settings/settings";
-import { useUrlParams } from "../UrlParams";
 
 interface Props {
   client: MatrixClient;
 }
 
 export const RegisteredView: FC<Props> = ({ client }) => {
-  const { header } = useUrlParams();
+  const { displayName } = useProfile(client);
+  const profileName = displayName?.trim() || client.getUserIdLocalpart();
+  const circlePlaceholder = profileName
+    ? `${profileName}’s Circle`
+    : "My Circle";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error>();
   const [optInAnalytics] = useOptInAnalytics();
@@ -64,8 +67,10 @@ export const RegisteredView: FC<Props> = ({ client }) => {
       const roomNameData = data.get("callName");
       const roomName =
         typeof roomNameData === "string"
-          ? sanitiseRoomNameInput(roomNameData)
-          : "";
+          ? sanitiseRoomNameInput(
+              roomNameData.trim() ? roomNameData : circlePlaceholder,
+            )
+          : circlePlaceholder;
 
       async function submit(): Promise<void> {
         setError(undefined);
@@ -101,7 +106,7 @@ export const RegisteredView: FC<Props> = ({ client }) => {
         }
       });
     },
-    [client, navigate, setJoinExistingCallModalOpen],
+    [client, navigate, setJoinExistingCallModalOpen, circlePlaceholder],
   );
 
   const recentRooms = useGroupCallRooms(client);
@@ -115,61 +120,46 @@ export const RegisteredView: FC<Props> = ({ client }) => {
 
   return (
     <>
-      <div className={commonStyles.container}>
-        {header === "standard" && (
-          <Header>
-            <LeftNav>
-              <HeaderLogo />
-            </LeftNav>
-            <RightNav>
-              <UserMenuContainer />
-            </RightNav>
-          </Header>
-        )}
-        <main className={commonStyles.main}>
-          <HeaderLogo className={commonStyles.logo} />
-          <Heading size="lg" weight="semibold">
-            {t("start_new_call")}
-          </Heading>
-          <Form className={styles.form} onSubmit={onSubmit}>
-            <FieldRow className={styles.fieldRow}>
-              <InputField
-                id="callName"
-                name="callName"
-                label={t("call_name")}
-                placeholder={t("call_name")}
-                type="text"
-                required
-                autoComplete="off"
-                data-testid="home_callName"
-              />
+      <ScryShell headerActions={<UserMenuContainer />}>
+        <h1>Gather Around The Orb</h1>
+        <p>Open a circle and summon your friends.</p>
+        <Form className={styles.form} onSubmit={onSubmit}>
+          <FieldRow className={styles.fieldRow}>
+            <InputField
+              id="callName"
+              name="callName"
+              label="name"
+              className={styles.nameField}
+              placeholder={circlePlaceholder}
+              type="text"
+              autoComplete="off"
+              data-testid="home_callName"
+            />
 
-              <Button
-                type="submit"
-                size="lg"
-                className={styles.button}
-                disabled={loading}
-                data-testid="home_go"
-              >
-                {loading ? t("common.loading") : t("action.go")}
-              </Button>
-            </FieldRow>
-            {optInAnalytics === null && (
-              <Text size="sm" className={styles.notice}>
-                <AnalyticsNotice />
-              </Text>
-            )}
-            {error && (
-              <FieldRow className={styles.fieldRow}>
-                <ErrorMessage error={error} />
-              </FieldRow>
-            )}
-          </Form>
-          {recentRooms.length > 0 && (
-            <CallList rooms={recentRooms} client={client} />
+            <button
+              type="submit"
+              className={`${styles.button} ${scryStyles.connect} wzrdz-button`}
+              disabled={loading}
+              data-testid="home_go"
+            >
+              {loading ? t("common.loading") : "Open"}
+            </button>
+          </FieldRow>
+          {optInAnalytics === null && (
+            <Text size="sm" className={styles.notice}>
+              <AnalyticsNotice />
+            </Text>
           )}
-        </main>
-      </div>
+          {error && (
+            <FieldRow className={styles.fieldRow}>
+              <ErrorMessage error={error} />
+            </FieldRow>
+          )}
+        </Form>
+        {recentRooms.length > 0 && (
+          <CallList rooms={recentRooms} client={client} />
+        )}
+      </ScryShell>
       <JoinExistingCallModal
         onJoin={onJoinExistingRoom}
         open={joinExistingCallModalOpen}

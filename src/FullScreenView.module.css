@@ -52,3 +52,91 @@ Please see LICENSE in the repository root for full details.
 .sendLogsSection {
   height: 50px;
 }
+
+.loadingPage {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--scry-scene-bg, var(--wzrdz-bg));
+  color: var(--wzrdz-fg);
+  font: 400 16px var(--wzrdz-font-ui);
+}
+.loadingPage > header {
+  width: min(100% - 40px, 1040px);
+  margin: 0 auto;
+  padding: 28px 0;
+}
+.loadingPage > [role="status"] {
+  margin: auto;
+  padding: 32px;
+  text-align: center;
+}
+.loadingPage > footer {
+  padding: 24px;
+  text-align: center;
+}
+
+/* Standalone interstitials share Scry's shell; embedded views retain host styling. */
+.scryPage {
+  isolation: isolate;
+  min-height: 100dvh;
+  background: var(--scry-scene-bg, var(--wzrdz-bg));
+  color: var(--wzrdz-fg);
+  --cpd-color-bg-canvas-default: var(--wzrdz-bg);
+  --cpd-color-text-primary: var(--wzrdz-fg);
+  --cpd-color-text-secondary: var(--wzrdz-soft);
+  font-family: var(--wzrdz-font-ui);
+}
+.scryHeader {
+  width: min(100% - 40px, 1040px);
+  margin: 0 auto;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--wzrdz-border);
+}
+.scryPage .container {
+  padding: 36px 20px;
+}
+.scryPage .content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 560px;
+  padding: 28px;
+  border: 1px solid var(--wzrdz-border);
+  background: var(--wzrdz-panel);
+}
+.scryPage h1,
+.scryPage h2 {
+  font-family: inherit;
+  font-weight: 400;
+}
+.scryPage p {
+  overflow-wrap: anywhere;
+}
+.scryPage button {
+  color: var(--wzrdz-fg);
+  background: var(--wzrdz-panel);
+  border: 1px solid var(--wzrdz-blue);
+}
+.scryPage :focus-visible {
+  outline: 2px solid var(--wzrdz-yellow);
+  outline-offset: 4px;
+}
+.scryFooter {
+  margin-top: auto;
+  padding: 24px;
+  text-align: center;
+  font: 10px/1.8 var(--wzrdz-font-ui);
+  color: var(--wzrdz-muted);
+}
+.scryFooter a {
+  color: var(--wzrdz-muted);
+}
+.scryFooter button {
+  border: 0;
+  background: none;
+  color: var(--wzrdz-muted);
+}
+
+.attribution { text-decoration: underline; text-underline-offset: 3px; }

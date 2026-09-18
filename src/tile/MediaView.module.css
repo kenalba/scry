@@ -58,6 +58,12 @@ Please see LICENSE in the repository root for full details.
   background-color: var(--video-tile-background);
 }
 
+/* Only the Scry call canvas supplies stars; camera and shared video stay clear. */
+.media[data-background="solid"][data-video-enabled="false"] .bg {
+  background-image: var(--scry-call-stars, none);
+  background-size: 1200px 800px;
+}
+
 .waves {
   transition: opacity ease 0.3s;
 }

@@ -8,7 +8,7 @@
     "copy_link": "Copy link",
     "edit": "Edit",
     "go": "Go",
-    "invite": "Invite",
+    "invite": "Summon",
     "lower_hand": "Lower hand",
     "no": "No",
     "pick_reaction": "Pick reaction",
@@ -28,12 +28,12 @@
     "create_account_prompt": "<0>Why not finish by setting up a password to keep your account?</0><1>You'll be able to keep your name and set an avatar for use on future calls</1>",
     "feedback_done": "<0>Thanks for your feedback!</0>",
     "feedback_prompt": "<0>We'd love to hear your feedback so we can improve your experience.</0>",
-    "headline": "{{displayName}}, your call has ended.",
+    "headline": "{{displayName}}, your circle has ended.",
     "not_now_button": "Not now, return to home screen",
     "reconnect_button": "Reconnect",
     "survey_prompt": "How did it go?"
   },
-  "call_name": "Name of call",
+  "call_name": "Name of circle",
   "common": {
     "analytics": "Analytics",
     "audio": "Audio",
@@ -93,8 +93,8 @@
   "disconnected_banner": "Connectivity to the server has been lost.",
   "error": {
     "call_is_not_supported": "Call is not supported",
-    "call_not_found": "Call not found",
-    "call_not_found_description": "<0>That link doesn't appear to belong to any existing call. Check that you have the right link, or <2>create a new one</2>.</0>",
+    "call_not_found": "Circle not found",
+    "call_not_found_description": "<0>That link doesn't appear to belong to any existing circle. Check that you have the right link, or <2>open a new one</2>.</0>",
     "connection_lost": "Connection lost",
     "connection_lost_description": "You were disconnected from the call.",
     "e2ee_unsupported": "Incompatible browser",
@@ -114,8 +114,8 @@
     "open_elsewhere_description": "{{brand}} has been opened in another tab. If that doesn't sound right, try reloading the page.",
     "peer_connection_timeout": "Connection timeout",
     "peer_connection_timeout_description": "Connection to the media server timed out. Try switching to a different network or disabling your VPN. If the problem persists, see our <0>troubleshooting guide</0> or contact your server administrator.",
-    "room_creation_restricted": "Failed to create call",
-    "room_creation_restricted_description": "Call creation might be restricted to authorized users only. Try again later, or contact your server admin if the problem persists.",
+    "room_creation_restricted": "Unable to open circle",
+    "room_creation_restricted_description": "Only signed-in wzrdz.cool members can open circles. Sign in and try again.",
     "screen_share_failed": "Could not start screen sharing",
     "sticky_events_required": "Homeserver does not support Matrix 2.0 calls",
     "sticky_events_required_description": "This deployment is configured to use Matrix 2.0 call mode, but the homeserver does not advertise support for sticky events (MSC4354). Ask your server admin to upgrade, or switch the deployment to a compatible mode.",
@@ -124,8 +124,8 @@
   "group_call_loader": {
     "banned_body": "You have been banned from the room.",
     "banned_heading": "Banned",
-    "call_ended_body": "You have been removed from the call.",
-    "call_ended_heading": "Call ended",
+    "call_ended_body": "You have been removed from the circle.",
+    "call_ended_heading": "Circle ended",
     "knock_reject_body": "Your request to join was declined.",
     "knock_reject_heading": "Access denied",
     "reason": "Reason: {{reason}}"
@@ -135,25 +135,25 @@
     "overlay_description": "Only works while using app",
     "overlay_title": "Handset Mode"
   },
-  "hangup_button_label": "End call",
-  "header_label": "Element Call Home",
+  "hangup_button_label": "Leave circle",
+  "header_label": "Scry home",
   "header_participants_label": "Participants",
   "invite_modal": {
     "link_copied_toast": "Link copied to clipboard",
-    "title": "Invite to this call"
+    "title": "Summon your friends"
   },
   "join_existing_call_modal": {
-    "join_button": "Yes, join call",
-    "text": "This call already exists, would you like to join?",
-    "title": "Join existing call?"
+    "join_button": "Yes, join circle",
+    "text": "This circle already exists, would you like to join?",
+    "title": "Join existing circle?"
   },
   "layout_grid_label": "Grid",
   "layout_spotlight_label": "Spotlight",
   "layout_switch_label": "Layout",
   "lobby": {
-    "ask_to_join": "Request to join call",
+    "ask_to_join": "Request to join circle",
     "join_as_guest": "Join as guest",
-    "join_button": "Join call",
+    "join_button": "Join circle",
     "leave_button": "Back to recents",
     "waiting_for_invite": "Request sent! Waiting for permission to join…"
   },
@@ -251,7 +251,7 @@
   },
   "star_rating_input_label_one": "{{count}} star",
   "star_rating_input_label_other": "{{count}} stars",
-  "start_new_call": "Start new call",
+  "start_new_call": "Open a circle",
   "start_video_button_label": "Start video",
   "stop_screenshare_button_label": "Sharing screen",
   "stop_video_button_label": "Stop video",
@@ -275,5 +275,16 @@
     "screen_share_volume": "Screen share volume",
     "volume": "Volume",
     "waiting_for_media": "Waiting for media..."
+  },
+  "scry_login": {
+    "title": "Sign in to Scry",
+    "description": "Use your wzrdz.cool account to open a circle.",
+    "button": "connect",
+    "loading": "Signing in…",
+    "guest_hint": "Have an invitation? Open your meeting link to join as a guest.",
+    "back": "Back to Scry",
+    "expired": "Sign-in expired or could not be verified. Please sign in again.",
+    "failed": "Sign-in could not be completed. Please try again.",
+    "storage_error": "Sign-in needs storage in this browser tab. Enable it and try again."
   }
 }

@@ -1,3 +1,9 @@
+# Scry
+
+Customized Element Call for **scry.wzrdz.cool**. See [Scry setup and release notes](SCRY.md).
+
+---
+
 # Element Call
 
 [![Chat](https://img.shields.io/matrix/webrtc:matrix.org)](https://matrix.to/#/#webrtc:matrix.org)

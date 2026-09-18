@@ -39,3 +39,7 @@ Please see LICENSE in the repository root for full details.
     gap: var(--cpd-space-10x);
   }
 }
+
+.scryFooter {
+  background: var(--wzrdz-panel-opaque);
+}

@@ -46,6 +46,7 @@ export class Config {
       let fetchTarget: string;
 
       if (
+        window.location.pathname === "/sso/callback" ||
         window.location.pathname.endsWith("/room/") ||
         window.location.pathname.endsWith("/room")
       ) {

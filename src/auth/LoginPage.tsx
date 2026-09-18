@@ -1,145 +1,114 @@
 /*
-Copyright 2021-2024 New Vector Ltd.
+Copyright 2026 Element Creations Ltd.
 
 SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
 Please see LICENSE in the repository root for full details.
 */
 
-import { type FC, type FormEvent, useCallback, useRef, useState } from "react";
+import { type FC, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Trans, useTranslation } from "react-i18next";
-import { Button } from "@vector-im/compound-web";
+import { useTranslation } from "react-i18next";
+import styles from "../scry/ScryShell.module.css";
 
-import Logo from "../icons/LogoLarge.svg?react";
-import { useClient } from "../ClientContext";
-import { FieldRow, InputField, ErrorMessage } from "../input/Input";
-import styles from "./LoginPage.module.css";
-import { useInteractiveLogin } from "./useInteractiveLogin";
+import { useClient, useClientState } from "../ClientContext";
+import { FieldRow, ErrorMessage } from "../input/Input";
+import { ScryShell } from "../scry/ScryShell";
 import { usePageTitle } from "../usePageTitle";
-import { PosthogAnalytics } from "../analytics/PosthogAnalytics";
-import { Config } from "../config/Config";
+import { LoadingPage } from "../FullScreenView";
 import { Link } from "../button/Link";
+import { completeSsoLogin, startSsoLogin } from "./scrySso";
+import { ssoCallback } from "./scrySsoBootstrap";
+import { SSO_CALLBACK_PATH } from "./scrySsoState";
 
 export const LoginPage: FC = () => {
   const { t } = useTranslation();
-  usePageTitle(t("login_title"));
-
+  usePageTitle(t("scry_login.title"));
   const { client, setClient } = useClient();
-  const login = useInteractiveLogin(client);
-  const homeserver = Config.defaultHomeserverUrl(); // TODO: Make this configurable
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const clientState = useClientState();
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
+  const isCallback = location.pathname === SSO_CALLBACK_PATH;
+  const started = useRef(false);
+  const [loading, setLoading] = useState(isCallback);
   const [error, setError] = useState<Error>();
 
-  // TODO: Handle hitting login page with authenticated client
-
-  const onSubmitLoginForm = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setLoading(true);
-
-      if (!homeserver || !usernameRef.current || !passwordRef.current) {
-        setError(Error("Login parameters are undefined"));
+  useEffect(() => {
+    if (
+      !isCallback ||
+      !setClient ||
+      clientState?.state !== "valid" ||
+      started.current
+    )
+      return;
+    started.current = true;
+    if (!ssoCallback || ssoCallback instanceof Error) {
+      setError(new Error(t("scry_login.expired")));
+      setLoading(false);
+      return;
+    }
+    const { token, returnTo } = ssoCallback;
+    completeSsoLogin(token, client)
+      .then(async ([memberClient, session]) => {
+        setClient(memberClient, session);
+        await navigate(returnTo, { replace: true });
+      })
+      .catch(() => {
+        // SDK errors can contain request details: never render/log a token.
+        setError(new Error(t("scry_login.failed")));
         setLoading(false);
-        return;
-      }
+      });
+  }, [client, clientState, isCallback, navigate, setClient, t]);
 
-      login(homeserver, usernameRef.current.value, passwordRef.current.value)
-        .then(async ([client, session]) => {
-          if (!setClient) {
-            return;
-          }
+  const signIn = (): void => {
+    try {
+      setError(undefined);
+      setLoading(true);
+      const from = (location.state as { from?: unknown } | null)?.from;
+      const destination =
+        typeof from === "string"
+          ? from
+          : from && typeof from === "object" && "pathname" in from
+            ? String(from.pathname) +
+              ("search" in from ? String(from.search) : "") +
+              ("hash" in from ? String(from.hash) : "")
+            : isCallback && ssoCallback && !(ssoCallback instanceof Error)
+              ? ssoCallback.returnTo
+              : "/";
+      startSsoLogin(destination);
+    } catch {
+      setError(new Error(t("scry_login.storage_error")));
+      setLoading(false);
+    }
+  };
 
-          setClient(client, session);
+  // The callback is a transition, not another sign-in prompt.
+  if (loading && !error) return <LoadingPage />;
 
-          const locationState = location.state;
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          if (locationState && locationState.from) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            await navigate(locationState.from);
-          } else {
-            await navigate("/");
-          }
-          PosthogAnalytics.instance.eventLogin.track();
-        })
-        .catch((error) => {
-          setError(error);
-          setLoading(false);
-        });
-    },
-    [login, location, navigate, homeserver, setClient],
-  );
-  // we need to limit the length of the homserver name to not cover the whole loginview input with the string.
-  let shortendHomeserverName = Config.defaultServerName()?.slice(0, 25);
-  shortendHomeserverName =
-    shortendHomeserverName?.length !== Config.defaultServerName()?.length
-      ? shortendHomeserverName + "..."
-      : shortendHomeserverName;
   return (
-    <>
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.formContainer}>
-            <Logo width="auto" height="auto" className={styles.logo} />
-
-            <h2>{t("log_in")}</h2>
-            <h4>{t("login_subheading")}</h4>
-            <form onSubmit={onSubmitLoginForm}>
-              <FieldRow>
-                <InputField
-                  type="text"
-                  ref={usernameRef}
-                  placeholder={t("common.username")}
-                  label={t("common.username")}
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  prefix="@"
-                  suffix={`:${shortendHomeserverName}`}
-                  data-testid="login_username"
-                />
-              </FieldRow>
-              <FieldRow>
-                <InputField
-                  type="password"
-                  ref={passwordRef}
-                  placeholder={t("common.password")}
-                  label={t("common.password")}
-                  data-testid="login_password"
-                />
-              </FieldRow>
-              {error && (
-                <FieldRow>
-                  <ErrorMessage error={error} />
-                </FieldRow>
-              )}
-              <FieldRow>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  data-testid="login_login"
-                >
-                  {loading ? t("logging_in") : t("login_title")}
-                </Button>
-              </FieldRow>
-            </form>
-          </div>
-          <div className={styles.authLinks}>
-            <p>{t("login_auth_links_prompt")}</p>
-            <p>
-              <Trans i18nKey="login_auth_links">
-                <Link to="/register">Create an account</Link>
-                {" Or "}
-                <Link to="/">Access as a guest</Link>
-              </Trans>
-            </p>
-          </div>
-        </div>
+    <ScryShell>
+      <div>
+        <h2>{t("scry_login.title")}</h2>
+        <p>{t("scry_login.description")}</p>
+        {error && (
+          <FieldRow>
+            <ErrorMessage error={error} />
+          </FieldRow>
+        )}
+        <FieldRow>
+          <button
+            type="button"
+            className={`${styles.connect} wzrdz-button`}
+            onClick={signIn}
+            disabled={loading}
+          >
+            {loading ? t("scry_login.loading") : t("scry_login.button")}
+          </button>
+        </FieldRow>
       </div>
-    </>
+      <div>
+        <p>{t("scry_login.guest_hint")}</p>
+        <Link to="/">{t("scry_login.back")}</Link>
+      </div>
+    </ScryShell>
   );
 };

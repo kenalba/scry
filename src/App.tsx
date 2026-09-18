@@ -15,6 +15,7 @@ import {
 } from "react";
 import {
   BrowserRouter,
+  Navigate,
   Route,
   useLocation,
   useNavigate,
@@ -28,10 +29,10 @@ import { I18nextProvider } from "react-i18next";
 
 import { HomePage } from "./home/HomePage";
 import { LoginPage } from "./auth/LoginPage";
-import { RegisterPage } from "./auth/RegisterPage";
 import { RoomPage } from "./room/RoomPage";
 import { ClientProvider } from "./ClientContext";
 import { ErrorPage, LoadingPage } from "./FullScreenView";
+import { StarfieldProvider } from "./scry/Starfield";
 import { Initializer } from "./initializer";
 import { type WidgetHelpers } from "./widget";
 import { useTheme } from "./useTheme";
@@ -155,7 +156,11 @@ export const App: FC<Props> = ({ vm, widget }) => {
               <Routes>
                 <SentryRoute path="/" element={<HomePage />} />
                 <SentryRoute path="/login" element={<LoginPage />} />
-                <SentryRoute path="/register" element={<RegisterPage />} />
+                <SentryRoute path="/sso/callback" element={<LoginPage />} />
+                <SentryRoute
+                  path="/register"
+                  element={<Navigate to="/login" replace />}
+                />
                 <SentryRoute path="*" element={<RoomPage />} />
               </Routes>
             </Sentry.ErrorBoundary>
@@ -175,9 +180,11 @@ export const App: FC<Props> = ({ vm, widget }) => {
               <BackgroundProvider>
                 <ThemeProvider>
                   <TooltipProvider>
-                    <Suspense fallback={null}>
-                      <MaybeAppBar>{content}</MaybeAppBar>
-                    </Suspense>
+                    <StarfieldProvider>
+                      <Suspense fallback={<LoadingPage />}>
+                        <MaybeAppBar>{content}</MaybeAppBar>
+                      </Suspense>
+                    </StarfieldProvider>
                   </TooltipProvider>
                 </ThemeProvider>
               </BackgroundProvider>

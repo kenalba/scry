@@ -17,6 +17,8 @@ import styles from "./FullScreenView.module.css";
 import { useUrlParams } from "./UrlParams";
 import { RichError } from "./RichError";
 import { ErrorView } from "./ErrorView";
+import { Starfield, StarfieldToggle } from "./scry/Starfield";
+import { ScryWordmark } from "./scry/ScryShell";
 
 interface FullScreenViewProps {
   className?: string;
@@ -27,10 +29,22 @@ export const FullScreenView: FC<FullScreenViewProps> = ({
   className,
   children,
 }) => {
-  const { header } = useUrlParams();
+  const { header, isWidget } = useUrlParams();
   return (
-    <div className={classNames(styles.page, className)}>
-      {header === "standard" && (
+    <div
+      className={classNames(
+        styles.page,
+        { [styles.scryPage]: !isWidget },
+        className,
+      )}
+    >
+      {!isWidget && <Starfield />}
+      {!isWidget && header === "standard" && (
+        <header className={styles.scryHeader}>
+          <ScryWordmark />
+        </header>
+      )}
+      {isWidget && header === "standard" && (
         <Header>
           <LeftNav>
             <HeaderLogo />
@@ -39,8 +53,17 @@ export const FullScreenView: FC<FullScreenViewProps> = ({
         </Header>
       )}
       <div className={styles.container}>
-        <div className={styles.content}>{children}</div>
+        <div className={styles.content} data-scry-reveal>
+          {children}
+        </div>
       </div>
+      {!isWidget && (
+        <footer className={styles.scryFooter}>
+          Powered by <a className={styles.attribution} href="https://github.com/element-hq/element-call/tree/main/docs" target="_blank" rel="noreferrer">the elements</a> ·{" "}
+          <a href="https://github.com/kenalba/scry/tree/signal20" target="_blank" rel="noreferrer">source</a>
+          <StarfieldToggle separator />
+        </footer>
+      )}
     </div>
   );
 };
@@ -77,11 +100,19 @@ export const ErrorPage = ({ error }: ErrorPageProps): ReactElement => {
 };
 
 export const LoadingPage: FC = () => {
-  const { t } = useTranslation();
-
+  const { t } = useTranslation(undefined, { useSuspense: false });
   return (
-    <FullScreenView>
-      <h1>{t("common.loading")}</h1>
-    </FullScreenView>
+    <div className={styles.loadingPage}>
+      <Starfield fast />
+      <header>
+        <ScryWordmark />
+      </header>
+      <div role="status" aria-live="polite">
+        {t("common.loading", { defaultValue: "Loading…" })}
+      </div>
+      <footer>
+        <StarfieldToggle />
+      </footer>
+    </div>
   );
 };

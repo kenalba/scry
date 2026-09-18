@@ -6,6 +6,12 @@ Please see LICENSE in the repository root for full details.
 */
 
 .inRoom {
+  position: relative;
+  isolation: isolate;
+  --scry-call-stars: none;
+  --cpd-color-bg-canvas-default: var(--wzrdz-bg);
+  --video-tile-background: var(--wzrdz-panel);
+  background: var(--scry-scene-bg, var(--wzrdz-bg));
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -113,4 +119,18 @@ spotlight tile is maximised and displaying video, apply a gradient background. *
 .tile {
   position: relative;
   flex-grow: 1;
+}
+
+/* Keep the call frame quiet, with breathing room above the video grid. */
+.inRoom > .header:not(.filler) {
+  padding-block-end: var(--cpd-space-3x);
+}
+.inRoom > .footer {
+  background: var(--wzrdz-panel-opaque);
+}
+.inRoom :focus-visible {
+  outline-color: var(--wzrdz-yellow);
+}
+.inRoom {
+  --scry-motion-top: 90px;
 }

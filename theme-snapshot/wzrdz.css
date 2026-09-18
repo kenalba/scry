@@ -1,0 +1,90 @@
+/* Wzrdz Signal theme v1. Canonical source: wzrdz-infra/theme. */
+:root {
+  --wzrdz-bg: #050505;
+  --wzrdz-fg: #f5f5f5;
+  --wzrdz-muted: #a3a4ab;
+  --wzrdz-soft: #c5c7d0;
+  --wzrdz-blue: #4169e1;
+  --wzrdz-yellow: #ffe600;
+  --wzrdz-panel: rgba(8, 9, 13, .72);
+  --wzrdz-panel-opaque: rgba(8, 9, 13, .92);
+  --wzrdz-border: rgba(65, 105, 225, .42);
+  --wzrdz-heading: rgba(65, 105, 225, .38);
+  --wzrdz-input-bg: #101115;
+  --wzrdz-input-border: rgba(65, 105, 225, .6);
+  --wzrdz-hover: rgba(65, 105, 225, .15);
+  --wzrdz-hover-border: #6688ef;
+  --wzrdz-font-ui: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --wzrdz-font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --wzrdz-flight-duration: 60s;
+  --wzrdz-hyperspace-duration: 2.8s;
+}
+.wzrdz-button {
+  appearance: none;
+  background: transparent;
+  color: var(--wzrdz-fg);
+  border: 1px solid var(--wzrdz-blue);
+  border-radius: 3px;
+  padding: 14px 20px;
+  font: 400 14px var(--wzrdz-font-ui);
+  cursor: pointer;
+}
+.wzrdz-button:hover { background: var(--wzrdz-hover); border-color: var(--wzrdz-hover-border); }
+.wzrdz-button:disabled { opacity: .6; cursor: wait; }
+.wzrdz-button:focus-visible,.wzrdz-motion-toggle:focus-visible { outline: 2px solid var(--wzrdz-yellow); outline-offset: 4px; }
+.wzrdz-motion-toggle { appearance: none; background: none; color: var(--wzrdz-muted); border: 0; border-radius: 0; padding: 0; font: 10px var(--wzrdz-font-ui); cursor: pointer; }
+.wzrdz-motion-toggle:hover { text-decoration: underline; text-underline-offset: 3px; }
+.wzrdz-stars {
+  position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  background: var(--wzrdz-bg) url("stars.svg") center/1200px 800px;
+}
+.wzrdz-stars[data-fixed="true"] { position: fixed; }
+.wzrdz-stars > div {
+  position: absolute; inset: -15%; background: url("stars.svg") center/1200px 800px; opacity: 0;
+}
+@keyframes wzrdz-flight {
+  0% { transform: scale(.7); opacity: 0; }
+  20% { opacity: .55; }
+  75% { opacity: .4; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+@keyframes wzrdz-hyperspace {
+  0% { transform: scale(.65); opacity: 0; }
+  20% { opacity: .7; }
+  75% { opacity: .45; }
+  100% { transform: scale(1.65); opacity: 0; }
+}
+@media(min-width:769px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  .wzrdz-stars:not([data-paused="true"]) { background-image: none; }
+  .wzrdz-stars:not([data-paused="true"]) > div { animation: wzrdz-flight var(--wzrdz-flight-duration) linear infinite; animation-delay: -15s; will-change: transform,opacity; }
+  .wzrdz-stars:not([data-paused="true"]) > div + div { animation-delay: -45s; transform-origin: 48% 46%; }
+  .wzrdz-stars[data-fast="true"]:not([data-paused="true"]) > div { background: url("hyperspace.svg") center/100% 100% no-repeat; animation-name: wzrdz-hyperspace; animation-duration: var(--wzrdz-hyperspace-duration); animation-delay: -.7s; transform-origin: 50% 50%; }
+  .wzrdz-stars[data-fast="true"]:not([data-paused="true"]) > div + div { animation-delay: -2.1s; transform-origin: 50% 50%; }
+}
+
+/* Persistent Scry backdrop. The existing two-child .wzrdz-stars remains compatible. */
+.wzrdz-scene { position: relative; isolation: isolate; height: 100%; min-height: 100%; background: var(--wzrdz-bg); --scry-scene-bg: transparent; }
+.wzrdz-sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--wzrdz-bg) url("stars.svg") center/1200px 800px; }
+.wzrdz-slow,.wzrdz-rays { position:absolute; inset:0; opacity:0; }
+.wzrdz-slow i { position:absolute; inset:-15%; background:url("stars.svg") center/1200px 800px; opacity:0; }
+.wzrdz-ray { position:absolute; left:50%; top:50%; width:64px; height:1px; transform-origin:left center; background:linear-gradient(to right, transparent, rgba(245,245,245,.8)); opacity:0; }
+@keyframes wzrdz-ray {
+  0% { transform:translate(calc(var(--ray-x) * .015),calc(var(--ray-y) * .015)) rotate(var(--ray-angle)) scaleX(.015); opacity:0; }
+  12% { opacity:.3; }
+  65% { opacity:.75; }
+  96% { opacity:.65; }
+  100% { transform:translate(var(--ray-x),var(--ray-y)) rotate(var(--ray-angle)) scaleX(1); opacity:0; }
+}
+@media(min-width:769px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  .wzrdz-sky[data-moving="true"] { background-image:none; }
+  .wzrdz-sky[data-moving="true"] > [data-active="true"] { opacity:1; }
+  .wzrdz-sky[data-moving="true"] .wzrdz-slow[data-active="true"] i { animation:wzrdz-flight var(--wzrdz-flight-duration) linear infinite; animation-delay:-15s; }
+  .wzrdz-sky[data-moving="true"] .wzrdz-slow[data-active="true"] i+i { animation-delay:-45s; transform-origin:48% 46%; }
+  .wzrdz-sky[data-moving="true"] .wzrdz-rays[data-active="true"] .wzrdz-ray { animation:wzrdz-ray var(--ray-duration) cubic-bezier(.45,0,.85,.7) infinite; animation-delay:var(--ray-delay); }
+  .wzrdz-sky[data-moving="true"][data-settling="true"] .wzrdz-slow { animation:wzrdz-arrival 650ms ease-out; }
+}
+@keyframes wzrdz-arrival { from { opacity:0; } to { opacity:1; } }
+@media(min-width:769px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  .wzrdz-scene:has(.wzrdz-sky[data-moving="true"]) [data-scry-reveal] { animation:wzrdz-content-arrival 180ms ease-out; }
+}
+@keyframes wzrdz-content-arrival { from { opacity:.65; } to { opacity:1; } }

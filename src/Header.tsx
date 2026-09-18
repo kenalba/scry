@@ -18,7 +18,7 @@ import { Heading, Text } from "@vector-im/compound-web";
 import { UserProfileIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import styles from "./Header.module.css";
-import Logo from "./icons/Logo.svg?react";
+import { ScryWordmark } from "./scry/ScryShell";
 import { Avatar, Size } from "./Avatar";
 import { EncryptionLock } from "./room/EncryptionLock";
 import { useRootSizeMatches } from "./useRootSize";
@@ -123,25 +123,22 @@ interface HeaderLogoProps {
  * component there is not, and it is just the logo.
  */
 export const HeaderLogo: FC<HeaderLogoProps> = ({ className }) => {
-  const { t } = useTranslation();
   const leaveToHome = useLeaveToHome();
   const onClick = useCallback(() => leaveToHome?.(), [leaveToHome]);
 
-  if (leaveToHome === null)
-    return (
-      <div className={classNames(styles.headerLogo, className)}>
-        <Logo />
-      </div>
-    );
   return (
-    <button
-      type="button"
-      className={classNames(styles.headerLogo, className)}
-      onClick={onClick}
-      aria-label={t("header_label")}
-    >
-      <Logo />
-    </button>
+    <div className={classNames(styles.headerLogo, className)}>
+      <ScryWordmark
+        onHomeClick={
+          leaveToHome === null
+            ? undefined
+            : (event) => {
+                event.preventDefault();
+                onClick();
+              }
+        }
+      />
+    </div>
   );
 };
 

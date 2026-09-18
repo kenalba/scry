@@ -11,6 +11,8 @@ import { Trans, useTranslation } from "react-i18next";
 import { Button, Heading, Text } from "@vector-im/compound-web";
 
 import styles from "./CallEndedView.module.css";
+import { FullScreenView } from "../FullScreenView";
+import { useUrlParams } from "../UrlParams";
 import feedbackStyle from "../input/FeedbackInput.module.css";
 import { useProfile } from "../profile/useProfile";
 import { Header, HeaderLogo, LeftNav, RightNav } from "../Header";
@@ -37,6 +39,7 @@ export const CallEndedView: FC<Props> = ({
   endedCallId,
 }) => {
   const { t } = useTranslation();
+  const { isWidget } = useUrlParams();
   const leaveToHome = useLeaveToHome();
 
   const { displayName } = useProfile(client);
@@ -131,6 +134,22 @@ export const CallEndedView: FC<Props> = ({
       </form>
     </div>
   );
+
+  if (!isWidget) {
+    return (
+      <FullScreenView>
+        <Heading size="lg" weight="regular">
+          {t("call_ended_view.headline", { displayName })}
+        </Heading>
+        {PosthogAnalytics.instance.isEnabled() &&
+          !surveySubmitted &&
+          qualitySurveyDialog}
+        {!confineToRoom && (
+          <LeaveToHomeLink>{t("return_home_button")}</LeaveToHomeLink>
+        )}
+      </FullScreenView>
+    );
+  }
 
   return (
     <>

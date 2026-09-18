@@ -8,8 +8,7 @@ Please see LICENSE in the repository root for full details.
 import { type FC, type JSX, type Ref, useMemo } from "react";
 import classNames from "classnames";
 
-import LogoMark from "../icons/LogoMark.svg?react";
-import LogoType from "../icons/LogoType.svg?react";
+import { ScryOrb } from "../scry/ScryShell";
 import {
   EndCallButton,
   MicButton,
@@ -278,12 +277,10 @@ export const CallFooter: FC<FooterProps> = ({
     <div className={styles.logo}>
       {showLogo && (
         <>
-          <LogoMark width={24} height={24} aria-hidden />
-          <LogoType
-            width={80}
-            height={11}
-            aria-label={import.meta.env.VITE_PRODUCT_NAME || "Element Call"}
-          />
+          <span className={styles.scryLogo}>
+            <ScryOrb />
+            <span>Scry</span>
+          </span>
         </>
       )}
       {debugTileLayout ? (
