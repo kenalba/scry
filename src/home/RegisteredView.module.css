@@ -45,16 +45,3 @@ Please see LICENSE in the repository root for full details.
   width: auto;
   flex: none;
 }
-.form .nameField input::placeholder {
-  color: var(--wzrdz-muted);
-}
-.form .nameField input + label {
-  top: -13px;
-  font-size: var(--font-size-micro);
-  background: var(--wzrdz-bg);
-  padding: 0 2px;
-}
-
-/* Keep the associated label accessible while only displaying it during editing. */
-.form .nameField input + label { opacity:0; }
-.form .nameField input:focus + label { opacity:1; }

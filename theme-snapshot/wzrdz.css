@@ -88,3 +88,7 @@
   .wzrdz-scene:has(.wzrdz-sky[data-moving="true"]) [data-scry-reveal] { animation:wzrdz-content-arrival 180ms ease-out; }
 }
 @keyframes wzrdz-content-arrival { from { opacity:.65; } to { opacity:1; } }
+
+/* Blend arrivals: the loaded texture is continuous underneath transient streaks. */
+.wzrdz-sky[data-blend="true"][data-settling="true"] .wzrdz-slow { animation:none; }
+.wzrdz-stars[data-wzrdz-starfield][hidden] { display:none; }

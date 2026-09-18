@@ -34,6 +34,9 @@ export const NoSecondFlash: Story = {
         "true",
       ),
     );
+    const slow = canvasElement.querySelector(".wzrdz-slow")!;
+    const slowAnimation = slow.querySelector("i")!.getAnimations()[0];
+    await expect(getComputedStyle(slow).opacity).toBe("1");
     const cancel = Animation.prototype.cancel;
     const restoredOpacities: string[] = [];
     Animation.prototype.cancel = function () {
@@ -59,6 +62,10 @@ export const NoSecondFlash: Story = {
         { timeout: 2000 },
       );
       await expect(restoredOpacities).toEqual(["0"]);
+      await expect(slow.querySelector("i")!.getAnimations()[0]).toBe(
+        slowAnimation,
+      );
+      await expect(getComputedStyle(slow).opacity).toBe("1");
       await expect(canvas.getByRole("heading")).toHaveTextContent(
         "Gather Around The Orb",
       );

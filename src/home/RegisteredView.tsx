@@ -27,7 +27,8 @@ import {
 import { useGroupCallRooms } from "./useGroupCallRooms";
 import { ScryShell } from "../scry/ScryShell";
 import styles from "./RegisteredView.module.css";
-import { FieldRow, InputField, ErrorMessage } from "../input/Input";
+import { FieldRow, ErrorMessage } from "../input/Input";
+import { CircleNameField } from "./CircleNameField";
 import { CallList } from "./CallList";
 import { UserMenuContainer } from "../UserMenuContainer";
 import { JoinExistingCallModal } from "./JoinExistingCallModal";
@@ -125,15 +126,9 @@ export const RegisteredView: FC<Props> = ({ client }) => {
         <p>Open a circle and summon your friends.</p>
         <Form className={styles.form} onSubmit={onSubmit}>
           <FieldRow className={styles.fieldRow}>
-            <InputField
-              id="callName"
-              name="callName"
-              label="name"
-              className={styles.nameField}
+            <CircleNameField
               placeholder={circlePlaceholder}
-              type="text"
-              autoComplete="off"
-              data-testid="home_callName"
+              opening={loading}
             />
 
             <button

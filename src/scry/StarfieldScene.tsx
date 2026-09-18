@@ -3,19 +3,16 @@
 
 import {
   createContext,
-  type CSSProperties,
   type FC,
   type ReactNode,
   useCallback,
   useContext,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { useUrlParams } from "../UrlParams";
-import { useRootElement } from "../RootElementContext";
-import { starGeometry } from "./starGeometry";
+import "../../theme-snapshot/starfield.js";
 
 type Claim = (key: symbol, fast: boolean | null) => void;
 const SceneContext = createContext<Claim | null>(null);
@@ -58,127 +55,20 @@ export function useStarfieldClaim(fast: boolean): boolean {
 }
 
 const Backdrop: FC<{ fast: boolean; paused: boolean }> = ({ fast, paused }) => {
-  const root = useRootElement();
-  const doc = root.ownerDocument;
-  const view = doc.defaultView!;
   const element = useRef<HTMLDivElement>(null);
-  const streaks = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  const [allowed, setAllowed] = useState(false);
-  const [showFast, setShowFast] = useState(fast);
-  const [settling, setSettling] = useState(false);
-  const geometry = useMemo(() => starGeometry(size.width, size.height), [size]);
-  useLayoutEffect(() => {
-    const query = view.matchMedia(
-      "(min-width:769px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)",
-    );
-    const update = (): void => setAllowed(query.matches && !doc.hidden);
-    update();
-    query.addEventListener("change", update);
-    doc.addEventListener("visibilitychange", update);
-    const observer = new ResizeObserver(([entry]) => {
-      setSize({
-        width: entry.contentRect.width,
-        height: entry.contentRect.height,
-      });
-    });
-    observer.observe(element.current!);
-    return () => {
-      query.removeEventListener("change", update);
-      doc.removeEventListener("visibilitychange", update);
-      observer.disconnect();
-    };
-  }, [view, doc]);
-  const moving = allowed && !paused;
-  useLayoutEffect(() => {
-    const layer = streaks.current;
-    if (fast || !moving || !layer) {
-      setShowFast(fast && moving);
-      setSettling(false);
-      return;
-    }
-    // A still-mounted fast layer means this is an arrival, not an idle rerender.
-    if (!showFast || layer.dataset.active !== "true") return;
-    setSettling(true);
-    const animations: Animation[] = [];
-    layer.querySelectorAll<HTMLElement>(".wzrdz-ray").forEach((ray) => {
-      const computed = view.getComputedStyle(ray);
-      const matrix = new DOMMatrixReadOnly(computed.transform);
-      const opacity = computed.opacity;
-      ray.getAnimations().forEach((animation) => animation.pause());
-      animations.push(
-        ray.animate(
-          [
-            { transform: matrix.toString(), opacity },
-            {
-              transform: `matrix(${matrix.a},${matrix.b},${matrix.c},${matrix.d},${matrix.e * 1.07},${matrix.f * 1.07})`,
-              opacity: 0,
-            },
-          ],
-          {
-            duration: 650,
-            easing: "cubic-bezier(.12,.75,.2,1)",
-            fill: "forwards",
-          },
-        ),
-      );
-    });
-    const fade = layer.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: 650,
-      fill: "forwards",
-    });
-    animations.push(fade);
-    let cancelled = false;
-    void fade.finished
-      .then(() => {
-        if (!cancelled) {
-          setShowFast(false);
-          setSettling(false);
-          // Keep the finished fade in place until React commits the hidden layer.
-          // Effect cleanup then releases it without exposing the streaks again.
-        }
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-      animations.forEach((animation) => animation.cancel());
-      layer
-        .querySelectorAll(".wzrdz-ray")
-        .forEach((ray) =>
-          ray.getAnimations().forEach((animation) => animation.play()),
-        );
-    };
-  }, [fast, moving, view, showFast]);
-  return (
-    <div
-      ref={element}
-      className="wzrdz-sky"
-      data-moving={moving}
-      data-fast={fast}
-      data-settling={settling}
-      aria-hidden="true"
-    >
-      <div className="wzrdz-slow" data-active={!showFast || settling}>
-        <i />
-        <i />
-      </div>
-      <div ref={streaks} className="wzrdz-rays" data-active={showFast}>
-        {geometry.map((ray, i) => (
-          <i
-            key={i}
-            className="wzrdz-ray"
-            style={
-              {
-                "--ray-x": `${ray.x}px`,
-                "--ray-y": `${ray.y}px`,
-                "--ray-angle": `${ray.angle}rad`,
-                "--ray-duration": `${ray.duration}s`,
-                "--ray-delay": `${ray.delay}s`,
-              } as CSSProperties
-            }
-          />
-        ))}
-      </div>
-    </div>
+  const controller = useRef<ReturnType<typeof WzrdzStarfield.mount> | null>(
+    null,
   );
+  useLayoutEffect(() => {
+    controller.current = WzrdzStarfield.mount(element.current!);
+    return () => {
+      controller.current?.destroy();
+      controller.current = null;
+    };
+  }, []);
+  useLayoutEffect(() => {
+    controller.current?.setPaused(paused);
+    controller.current?.setFast(fast);
+  }, [fast, paused]);
+  return <div ref={element} className="wzrdz-sky" aria-hidden="true" />;
 };
