@@ -44,11 +44,13 @@ const mediaDevices = new MediaDevices(globalScope, {
  * @returns A component that renders the CallFooter based on primitive snapshot params (not a view model). Which is what we want for storybook.
  */
 function CallFooterStoryWrapper({
+  inCall = false,
   children,
   layout,
   setLayout,
   ...vmSnapshot
 }: Omit<FooterSnapshot, "layoutSwitchVm"> & {
+  inCall?: boolean;
   children?: false | JSX.Element | JSX.Element[] | undefined;
   layout: LayoutMode | null;
   setLayout: (value: LayoutMode) => void;
@@ -67,7 +69,7 @@ function CallFooterStoryWrapper({
             sendReaction: async (reaction: ReactionOption) => Promise.resolve(),
           }}
         >
-          <CallFooter vm={vm} />
+          <CallFooter vm={vm} inCall={inCall} />
         </ReactionsSenderContext>
       </div>
     </MediaDevicesContext>
@@ -414,4 +416,28 @@ export const LobbyRecentButtonMobile: Story = {
   parameters: {
     ...Default.parameters,
   },
+};
+
+export const ScryInCall: Story = {
+  ...Default,
+  args: { ...Default.args, inCall: true, showLogo: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const settings = canvas.getByTestId("settings-bottom-center");
+    const leave = canvas.getByTestId("incall_leave");
+    await expect(
+      canvas.queryByTestId("settings-bottom-left"),
+    ).not.toBeInTheDocument();
+    await expect(canvas.queryByText("Scry")).not.toBeInTheDocument();
+    await expect(settings.nextElementSibling).toBe(leave);
+    await userEvent.click(settings);
+    await expect(args.openSettings).toHaveBeenCalled();
+    await userEvent.click(leave);
+    await expect(args.hangup).toHaveBeenCalled();
+  },
+};
+
+export const ScryInCallMobile: Story = {
+  ...ScryInCall,
+  globals: { viewport: { value: "mobile2" } },
 };

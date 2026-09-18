@@ -143,6 +143,7 @@ export const HeaderLogo: FC<HeaderLogoProps> = ({ className }) => {
 };
 
 interface RoomHeaderInfoProps {
+  hideAvatar?: boolean;
   id: string;
   name: string;
   avatarUrl: string | null;
@@ -151,6 +152,7 @@ interface RoomHeaderInfoProps {
 }
 
 export const RoomHeaderInfo: FC<RoomHeaderInfoProps> = ({
+  hideAvatar = false,
   id,
   name,
   avatarUrl,
@@ -161,14 +163,20 @@ export const RoomHeaderInfo: FC<RoomHeaderInfoProps> = ({
   const size = useRootSizeMatches(({ width }) => width <= 550) ? "sm" : "lg";
 
   return (
-    <div className={styles.roomHeaderInfo} data-size={size}>
-      <Avatar
-        className={styles.roomAvatar}
-        id={id}
-        name={name}
-        size={size === "sm" ? Size.SM : 56}
-        src={avatarUrl ?? undefined}
-      />
+    <div
+      className={styles.roomHeaderInfo}
+      data-size={size}
+      data-hide-avatar={hideAvatar}
+    >
+      {!hideAvatar && (
+        <Avatar
+          className={styles.roomAvatar}
+          id={id}
+          name={name}
+          size={size === "sm" ? Size.SM : 56}
+          src={avatarUrl ?? undefined}
+        />
+      )}
       <div className={styles.nameLine}>
         <Heading
           type={size === "sm" ? "body" : "heading"}

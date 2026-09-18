@@ -123,3 +123,8 @@ Please see LICENSE in the repository root for full details.
     font-size: var(--font-size-subtitle);
   }
 }
+
+.roomHeaderInfo[data-hide-avatar="true"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "name" "participants";
+}

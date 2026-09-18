@@ -12,19 +12,23 @@ import { TooltipProvider } from "@vector-im/compound-web";
 
 import { RoomHeaderInfo } from "./Header";
 
-test("RoomHeaderInfo is accessible", async () => {
-  const { container } = render(
-    <TooltipProvider>
-      <RoomHeaderInfo
-        id="!a:example.org"
-        name="Mission Control"
-        avatarUrl=""
-        encrypted
-        participantCount={11}
-      />
-    </TooltipProvider>,
-  );
-  expect(await axe(container)).toHaveNoViolations();
-  // Check that the room name acts as a heading
-  screen.getByRole("heading", { name: "Mission Control" });
-});
+test.each([false, true])(
+  "RoomHeaderInfo is accessible with hideAvatar=%s",
+  async (hideAvatar) => {
+    const { container } = render(
+      <TooltipProvider>
+        <RoomHeaderInfo
+          hideAvatar={hideAvatar}
+          id="!a:example.org"
+          name="Mission Control"
+          avatarUrl=""
+          encrypted
+          participantCount={11}
+        />
+      </TooltipProvider>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
+    // Check that the room name acts as a heading
+    screen.getByRole("heading", { name: "Mission Control" });
+  },
+);

@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
 Please see LICENSE in the repository root for full details.
 */
 
-import { Starfield, StarfieldToggle } from "../scry/Starfield";
+import { Starfield } from "../scry/Starfield";
 import { type MatrixClient, type Room as MatrixRoom } from "matrix-js-sdk";
 import {
   type FC,
@@ -282,7 +282,7 @@ export const InCallView: FC<InCallViewProps> = ({
   );
   const topWithinRoot = bounds.top - rootTop;
 
-  const { showControls, header: headerStyle } = useUrlParams();
+  const { showControls, header: headerStyle, isWidget } = useUrlParams();
 
   const muteAllAudio = useBehavior(muteAllAudio$);
   const toggleAudio = useBehavior(muteStates.audio.toggle$);
@@ -418,6 +418,7 @@ export const InCallView: FC<InCallViewProps> = ({
               id={matrixInfo.roomId}
               name={matrixInfo.roomName}
               avatarUrl={matrixInfo.roomAvatar}
+              hideAvatar={!isWidget}
               encrypted={matrixInfo.e2eeSystem.kind !== E2eeType.NONE}
               participantCount={participantCount}
             />
@@ -649,9 +650,12 @@ export const InCallView: FC<InCallViewProps> = ({
 
   // Only hide the settings button if we have an AppBar header and we are showing the header
   const footer = footerVm !== null && (
-    <CallFooter className={styles.footer} ref={footerRef} vm={footerVm}>
-      <StarfieldToggle />
-    </CallFooter>
+    <CallFooter
+      className={styles.footer}
+      ref={footerRef}
+      vm={footerVm}
+      inCall={!isWidget}
+    />
   );
   const allConnections = useBehavior(vm.allConnections$);
 

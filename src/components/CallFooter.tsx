@@ -107,12 +107,15 @@ export interface FooterState {
 }
 
 export interface FooterProps {
+  /** Standalone Scry calls group settings with media controls and omit branding. */
+  inCall?: boolean;
   className?: string;
   ref?: Ref<HTMLDivElement>;
   children?: JSX.Element | JSX.Element[] | false;
   vm: ViewModel<FooterSnapshot>;
 }
 export const CallFooter: FC<FooterProps> = ({
+  inCall = false,
   className,
   ref,
   children,
@@ -150,7 +153,7 @@ export const CallFooter: FC<FooterProps> = ({
 
   const buttons: JSX.Element[] = [];
 
-  if (openSettings !== undefined) {
+  if (openSettings !== undefined && !inCall) {
     // Add the settings button to the center group so it's visible on small
     // screens. On larger screens the SettingsIconButton with
     // showForScreenWidth="wide" in the settingsLogoContainer is used instead.
@@ -263,6 +266,17 @@ export const CallFooter: FC<FooterProps> = ({
 
   if (audioOutputButton) buttons.push(audioOutputButton);
 
+  if (inCall && openSettings !== undefined) {
+    buttons.push(
+      <SettingsButton
+        key="settings"
+        size={buttonSize}
+        onClick={openSettings}
+        data-testid="settings-bottom-center"
+      />,
+    );
+  }
+
   if (hangup)
     buttons.push(
       <EndCallButton
@@ -275,7 +289,7 @@ export const CallFooter: FC<FooterProps> = ({
 
   const logoDebugContainer = (
     <div className={styles.logo}>
-      {showLogo && (
+      {showLogo && !inCall && (
         <>
           <span className={styles.scryLogo}>
             <ScryOrb />
@@ -299,7 +313,7 @@ export const CallFooter: FC<FooterProps> = ({
       })}
     >
       <div className={styles.settingsLogoContainer}>
-        {openSettings !== undefined && (
+        {openSettings !== undefined && !inCall && (
           <SettingsIconButton
             key="settings"
             kind="secondary"
@@ -309,7 +323,7 @@ export const CallFooter: FC<FooterProps> = ({
           />
         )}
         {children}
-        {(showLogo || debugTileLayout) && logoDebugContainer}
+        {((showLogo && !inCall) || debugTileLayout) && logoDebugContainer}
       </div>
       {!hideControls && <div className={styles.buttons}>{buttons}</div>}
       {!hideControls && layoutSwitchVm && (
