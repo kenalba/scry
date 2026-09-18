@@ -12,7 +12,7 @@ import { useClientState } from "../ClientContext";
 import { ErrorPage, LoadingPage } from "../FullScreenView";
 import { UnauthenticatedView } from "./UnauthenticatedView";
 import { RegisteredView } from "./RegisteredView";
-import { useScryMembership } from "../auth/useScryMembership";
+import { useScryMembershipState } from "../auth/useScryMembership";
 import { usePageTitle } from "../usePageTitle";
 
 export const HomePage: FC = () => {
@@ -21,7 +21,7 @@ export const HomePage: FC = () => {
 
   const clientState = useClientState();
 
-  const membership = useScryMembership(clientState?.state === "valid" ? clientState.authenticated?.client : undefined);
+  const membership = useScryMembershipState();
 
   if (!clientState) {
     return <LoadingPage />;
@@ -29,7 +29,16 @@ export const HomePage: FC = () => {
     return <ErrorPage error={clientState.error} />;
   } else {
     if (membership === "loading") return <LoadingPage />;
-    if (membership === "error") return <ErrorPage error={new Error("We couldn’t check your membership. Please reload to try again.")} />;
+    if (membership === "error")
+      return (
+        <ErrorPage
+          error={
+            new Error(
+              "We couldn’t check your membership. Please reload to try again.",
+            )
+          }
+        />
+      );
     return clientState.authenticated && membership === "member" ? (
       <RegisteredView client={clientState.authenticated.client} />
     ) : (

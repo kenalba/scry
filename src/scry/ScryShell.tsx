@@ -44,7 +44,7 @@ export const ScryShell: FC<{
     </main>
     <footer className={styles.footer}>
       <span>
-        Powered by <a className={styles.attribution} href="https://github.com/element-hq/element-call/tree/main/docs" target="_blank" rel="noreferrer">the elements</a> · <a href="https://github.com/kenalba/scry/tree/signal21" target="_blank" rel="noreferrer">source</a>
+        Powered by <a className={styles.attribution} href="https://github.com/element-hq/element-call/tree/main/docs" target="_blank" rel="noreferrer">the elements</a> · <a href="https://github.com/kenalba/scry/tree/signal22" target="_blank" rel="noreferrer">source</a>
         <StarfieldToggle separator />
       </span>
     </footer>

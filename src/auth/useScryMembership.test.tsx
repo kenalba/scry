@@ -6,10 +6,15 @@ Please see LICENSE in the repository root for full details.
 */
 
 import { afterEach, expect, test, vi } from "vitest";
-import { cleanup, renderHook, waitFor } from "@testing-library/react";
+import { cleanup, render, renderHook, waitFor } from "@testing-library/react";
 import { createClient } from "matrix-js-sdk";
 
-import { useScryMembership } from "./useScryMembership";
+import { ClientContextProvider, type ClientState } from "../ClientContext";
+import {
+  ScryMembershipProvider,
+  useScryMembershipState,
+  useScryMembership,
+} from "./useScryMembership";
 
 afterEach(() => {
   cleanup();
@@ -78,4 +83,58 @@ test("unmount cancels the authenticated lookup", () => {
   expect(signal.aborted).toBe(false);
   unmount();
   expect(signal.aborted).toBe(true);
+});
+
+test("a restored session never renders guest presentation while its authority is pending", () => {
+  vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise(() => {})));
+  const client = createClient({
+    baseUrl: "https://scry.example",
+    accessToken: "restored-token",
+  });
+  const seen: string[] = [];
+  const { rerender } = renderHook(
+    ({ current }: { current?: typeof client }) => {
+      const membership = useScryMembership(current);
+      seen.push(membership);
+      return membership;
+    },
+    { initialProps: { current: undefined as typeof client | undefined } },
+  );
+  seen.length = 0;
+  rerender({ current: client });
+  expect(seen).not.toContain("guest");
+  expect(seen).toContain("loading");
+});
+
+test("returning home reuses the settled membership without another loading screen", async () => {
+  const fetch = vi
+    .fn()
+    .mockResolvedValue({
+      ok: true,
+      json: async () => ({ can_create_room: true }),
+    });
+  vi.stubGlobal("fetch", fetch);
+  const client = createClient({
+    baseUrl: "https://scry.example",
+    accessToken: "session-token",
+  });
+  const clientState = {
+    state: "valid",
+    authenticated: { client },
+  } as ClientState;
+  const Home = () => <div>{useScryMembershipState()}</div>;
+  const Page = ({ home }: { home: boolean }) => (
+    <ClientContextProvider value={clientState}>
+      <ScryMembershipProvider>
+        {home ? <Home /> : <div>in circle</div>}
+      </ScryMembershipProvider>
+    </ClientContextProvider>
+  );
+  const result = render(<Page home />);
+  await waitFor(() => expect(result.getByText("member")).toBeTruthy());
+  result.rerender(<Page home={false} />);
+  result.rerender(<Page home />);
+  expect(result.getByText("member")).toBeTruthy();
+  expect(result.queryByText("loading")).toBeNull();
+  expect(fetch).toHaveBeenCalledTimes(1);
 });

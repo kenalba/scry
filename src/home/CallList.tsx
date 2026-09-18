@@ -8,7 +8,6 @@ Please see LICENSE in the repository root for full details.
 import { Link } from "react-router-dom";
 import { type RoomMember, type Room, type MatrixClient } from "matrix-js-sdk";
 import { type FC, useCallback, type MouseEvent, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { IconButton, Text } from "@vector-im/compound-web";
 import { CloseIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 import classNames from "classnames";
@@ -19,33 +18,60 @@ import { getRelativeRoomUrl } from "../utils/matrix";
 import { type GroupCallRoom } from "./useGroupCallRooms";
 import { useRoomEncryptionSystem } from "../e2ee/sharedKeyManagement";
 
-interface CallListProps {
+export interface CallListProps {
   rooms: GroupCallRoom[];
   client: MatrixClient;
 }
 
 export const CallList: FC<CallListProps> = ({ rooms, client }) => {
+  const [query, setQuery] = useState("");
+  const [limit, setLimit] = useState(5);
+  const filtered = rooms.filter(({ roomName }) =>
+    roomName.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+  );
   return (
-    <>
-      <div className={styles.callList}>
-        {rooms.map(({ room, roomName, avatarUrl, participants }) => (
-          <CallTile
-            key={room.roomId}
-            client={client}
-            name={roomName}
-            avatarUrl={avatarUrl}
-            room={room}
-            participants={participants}
+    <section className={styles.history} aria-label="Your circles">
+      <div className={styles.listHeader}>
+        <h2>Your circles</h2>
+        {rooms.length > 5 && (
+          <input
+            type="search"
+            aria-label="Find a circle"
+            placeholder="Find a circle"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setLimit(5);
+            }}
           />
-        ))}
-        {rooms.length > 3 && (
-          <>
-            <div className={styles.callTileSpacer} />
-            <div className={styles.callTileSpacer} />
-          </>
         )}
       </div>
-    </>
+      <div className={styles.callList}>
+        {filtered
+          .slice(0, limit)
+          .map(({ room, roomName, avatarUrl, participants }) => (
+            <CallTile
+              key={room.roomId}
+              client={client}
+              name={roomName}
+              avatarUrl={avatarUrl}
+              room={room}
+              participants={participants}
+            />
+          ))}
+      </div>
+      {filtered.length === 0 && (
+        <p className={styles.empty}>No matching circles.</p>
+      )}
+      {filtered.length > limit && (
+        <button
+          className={styles.showMore}
+          onClick={() => setLimit((value) => value + 5)}
+        >
+          Show more ({filtered.length - limit})
+        </button>
+      )}
+    </section>
   );
 };
 interface CallTileProps {
@@ -57,7 +83,6 @@ interface CallTileProps {
 }
 
 const CallTile: FC<CallTileProps> = ({ name, avatarUrl, room, client }) => {
-  const { t } = useTranslation();
   const roomEncryptionSystem = useRoomEncryptionSystem(room.roomId);
   const [isLeaving, setIsLeaving] = useState(false);
 
@@ -73,19 +98,12 @@ const CallTile: FC<CallTileProps> = ({ name, avatarUrl, room, client }) => {
 
   const body = (
     <>
-      <Avatar id={room.roomId} name={name} size={Size.LG} src={avatarUrl} />
+      <Avatar id={room.roomId} name={name} size={Size.SM} src={avatarUrl} />
       <div className={styles.callInfo}>
         <Text weight="semibold" className={styles.callName}>
           {name}
         </Text>
       </div>
-      <IconButton
-        onClick={onRemove}
-        disabled={isLeaving}
-        aria-label={t("action.remove")}
-      >
-        <CloseIcon />
-      </IconButton>
     </>
   );
 
@@ -103,6 +121,13 @@ const CallTile: FC<CallTileProps> = ({ name, avatarUrl, room, client }) => {
           {body}
         </Link>
       )}
+      <IconButton
+        onClick={onRemove}
+        disabled={isLeaving}
+        aria-label={`Leave ${name}`}
+      >
+        <CloseIcon />
+      </IconButton>
     </div>
   );
 };

@@ -27,6 +27,7 @@ import { logger } from "matrix-js-sdk/lib/logger";
 import { type MatrixClient } from "matrix-js-sdk";
 import { I18nextProvider } from "react-i18next";
 
+import { ScryMembershipProvider } from "./auth/useScryMembership";
 import { HomePage } from "./home/HomePage";
 import { LoginPage } from "./auth/LoginPage";
 import { RoomPage } from "./room/RoomPage";
@@ -148,24 +149,26 @@ export const App: FC<Props> = ({ vm, widget }) => {
   const content =
     loaded && clientReady ? (
       <ClientProvider client={widgetClient}>
-        <MediaDevicesContext value={vm.mediaDevices}>
-          <ProcessorProvider>
-            <Sentry.ErrorBoundary
-              fallback={(error) => <ErrorPage error={error} />}
-            >
-              <Routes>
-                <SentryRoute path="/" element={<HomePage />} />
-                <SentryRoute path="/login" element={<LoginPage />} />
-                <SentryRoute path="/sso/callback" element={<LoginPage />} />
-                <SentryRoute
-                  path="/register"
-                  element={<Navigate to="/login" replace />}
-                />
-                <SentryRoute path="*" element={<RoomPage />} />
-              </Routes>
-            </Sentry.ErrorBoundary>
-          </ProcessorProvider>
-        </MediaDevicesContext>
+        <ScryMembershipProvider>
+          <MediaDevicesContext value={vm.mediaDevices}>
+            <ProcessorProvider>
+              <Sentry.ErrorBoundary
+                fallback={(error) => <ErrorPage error={error} />}
+              >
+                <Routes>
+                  <SentryRoute path="/" element={<HomePage />} />
+                  <SentryRoute path="/login" element={<LoginPage />} />
+                  <SentryRoute path="/sso/callback" element={<LoginPage />} />
+                  <SentryRoute
+                    path="/register"
+                    element={<Navigate to="/login" replace />}
+                  />
+                  <SentryRoute path="*" element={<RoomPage />} />
+                </Routes>
+              </Sentry.ErrorBoundary>
+            </ProcessorProvider>
+          </MediaDevicesContext>
+        </ScryMembershipProvider>
       </ClientProvider>
     ) : (
       <LoadingPage />
