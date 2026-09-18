@@ -25,7 +25,9 @@ import { AppViewModel } from "./state/AppViewModel";
 import { globalScope } from "./state/ObservableScope";
 import { getUrlParams } from "./UrlParams";
 
-initRageshake().catch((e) => {
+initRageshake({
+  quietConsole: import.meta.env.PROD && !getUrlParams().isWidget,
+}).catch((e) => {
   logger.error("Failed to initialize rageshake", e);
 });
 

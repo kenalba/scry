@@ -98,7 +98,7 @@ const Backdrop: FC<{ fast: boolean; paused: boolean }> = ({ fast, paused }) => {
       return;
     }
     // A still-mounted fast layer means this is an arrival, not an idle rerender.
-    if (layer.dataset.active !== "true") return;
+    if (!showFast || layer.dataset.active !== "true") return;
     setSettling(true);
     const animations: Animation[] = [];
     layer.querySelectorAll<HTMLElement>(".wzrdz-ray").forEach((ray) => {
@@ -134,7 +134,8 @@ const Backdrop: FC<{ fast: boolean; paused: boolean }> = ({ fast, paused }) => {
         if (!cancelled) {
           setShowFast(false);
           setSettling(false);
-          animations.forEach((animation) => animation.cancel());
+          // Keep the finished fade in place until React commits the hidden layer.
+          // Effect cleanup then releases it without exposing the streaks again.
         }
       })
       .catch(() => {});
@@ -147,7 +148,7 @@ const Backdrop: FC<{ fast: boolean; paused: boolean }> = ({ fast, paused }) => {
           ray.getAnimations().forEach((animation) => animation.play()),
         );
     };
-  }, [fast, moving, view]);
+  }, [fast, moving, view, showFast]);
   return (
     <div
       ref={element}

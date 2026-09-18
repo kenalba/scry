@@ -476,12 +476,14 @@ export let rageshakeLogger: Logger;
  * Modifies globals.
  * @return Resolves when set up.
  */
-export async function init(): Promise<void> {
+export async function init({
+  quietConsole = false,
+}: { quietConsole?: boolean } = {}): Promise<void> {
   global.mx_rage_logger = new ConsoleLogger();
 
   // configure loglevel based loggers:
   rageshakeLogger = logger;
-  setLogExtension(rageshakeLogger, global.mx_rage_logger.log);
+  setLogExtension(rageshakeLogger, global.mx_rage_logger.log, quietConsole);
 
   // intercept console logging so that we can get matrix_sdk logs:
   // this is nasty, but no logging hooks are provided
@@ -496,10 +498,13 @@ export async function init(): Promise<void> {
     if (!originalMethod) return;
     const prefix = `${level.toUpperCase()} matrix_sdk`;
     window.console[level] = (...args): void => {
-      originalMethod(...args);
+      const isRustSdk =
+        typeof args[0] === "string" && args[0].startsWith(prefix);
+      if (!quietConsole || !isRustSdk || LogLevel[level] >= LogLevel.warn)
+        originalMethod(...args);
       // args for calls from the matrix-sdk-crypto-wasm look like:
       // ["DEBUG matrix_sdk_indexeddb::crypto_store: IndexedDbCryptoStore: opening main store matrix-js-sdk::matrix-sdk-crypto\n    at /home/runner/.cargo/git/checkouts/matrix-rust-sdk-1f4927f82a3d27bb/07aa6d7/crates/matrix-sdk-indexeddb/src/crypto_store/mod.rs:267"]
-      if (typeof args[0] === "string" && args[0].startsWith(prefix)) {
+      if (isRustSdk) {
         // we pass all the args on to the logger in case there are more sent in future
         global.mx_rage_logger.log(LogLevel[level], "matrix_sdk", ...args);
       }
@@ -627,6 +632,7 @@ type LogLevelString = keyof typeof LogLevel;
 function setLogExtension(
   _loggerToExtend: Logger,
   extension: LogExtensionFunc,
+  quietConsole = false,
 ): void {
   const loggerToExtend = _loggerToExtend as unknown as loglevel.Logger;
   const originalFactory = loggerToExtend.methodFactory;
@@ -643,7 +649,8 @@ function setLogExtension(
 
     return (...args) => {
       // we don't send the logger name to the raw method as some of them are already outputting the prefix
-      rawMethod.apply(this, args);
+      if (!quietConsole || logLevel >= LogLevel.warn)
+        rawMethod.apply(this, args);
       if (needLog) {
         // we prefix the logger name to the extension
         // this makes sure that the rageshake contains the logger name

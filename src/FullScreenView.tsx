@@ -60,7 +60,7 @@ export const FullScreenView: FC<FullScreenViewProps> = ({
       {!isWidget && (
         <footer className={styles.scryFooter}>
           Powered by <a className={styles.attribution} href="https://github.com/element-hq/element-call/tree/main/docs" target="_blank" rel="noreferrer">the elements</a> ·{" "}
-          <a href="https://github.com/kenalba/scry/tree/signal22" target="_blank" rel="noreferrer">source</a>
+          <a href="https://github.com/kenalba/scry/tree/signal23" target="_blank" rel="noreferrer">source</a>
           <StarfieldToggle separator />
         </footer>
       )}
