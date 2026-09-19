@@ -64,7 +64,7 @@ export const StarfieldToggle: FC<{ separator?: boolean }> = ({
           window.dispatchEvent(new Event(preferenceEvent));
         }}
       >
-        {paused ? "Resume stars" : "Pause stars"}
+        {paused ? "Resume stars" : "stop the stars"}
       </button>
     </span>
   );

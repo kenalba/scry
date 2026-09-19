@@ -57,7 +57,7 @@ export const ScryShell: FC<{
         </a>{" "}
         ·{" "}
         <a
-          href="https://github.com/kenalba/scry/tree/signal25"
+          href="https://github.com/kenalba/scry/tree/signal26"
           target="_blank"
           rel="noreferrer"
         >
